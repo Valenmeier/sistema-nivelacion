@@ -1,0 +1,261 @@
+.card {
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius-md);
+  background: var(--c-surface);
+  padding: clamp(16px, 2.4vw, 30px);
+  min-width: 0;
+}
+
+.top {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 22px;
+}
+
+.pill {
+  background: #f0edff;
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
+  color: var(--c-primary);
+  font-weight: 600;
+}
+
+.instruction {
+  margin: 0 0 18px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.reading {
+  background: var(--c-soft);
+  padding: clamp(16px, 2vw, 23px) clamp(14px, 2vw, 20px);
+  border-radius: var(--radius-sm);
+  color: #151e3e;
+  font-size: clamp(15px, 1.45vw, 17px);
+  line-height: 1.55;
+  margin-bottom: 20px;
+}
+
+.title {
+  margin: 15px 0 21px;
+  font-size: clamp(18px, 1.9vw, 20px);
+}
+
+.options {
+  max-height: clamp(300px, 40vh, 356px);
+  overflow-y: auto;
+  padding-right: 9px;
+  display: grid;
+  gap: 9px; 
+  align-content: start;
+  grid-auto-rows: auto;
+
+  scrollbar-width: thin;
+}
+
+.answer {
+  width: 100%;
+  min-height: 66px;
+  height: auto;
+  display: flex;
+  align-items: center;
+  text-align: left;
+  gap: 18px;
+  padding: 10px clamp(11px, 2vw, 17px);
+  border: 1px solid #e0e4ed;
+  border-radius: 11px;
+  background: #fff;
+  color: #293550;
+  line-height: 1.42;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.answerSelected {
+  border: 1.5px solid var(--c-primary);
+  color: var(--c-primary);
+  background: #faf9ff;
+}
+
+.letter {
+  flex: 0 0 clamp(38px, 4vw, 43px);
+  width: clamp(38px, 4vw, 43px);
+  height: clamp(38px, 4vw, 43px);
+  display: grid;
+  place-items: center;
+  border: 1px solid #ccd3e3;
+  border-radius: 50%;
+  color: var(--c-ink);
+  font-size: clamp(18px, 2vw, 20px);
+  font-weight: 600;
+}
+
+.answerSelected .letter {
+  border-color: var(--c-primary);
+  color: #fff;
+  background: var(--c-primary);
+}
+
+.actions {
+  margin-top: clamp(18px, 2.2vw, 30px);
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.numbers {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: clamp(9px, 1.2vw, 15px);
+}
+
+.number {
+  aspect-ratio: 1;
+  border: 1px solid #dde3ed;
+  background: #fff;
+  border-radius: var(--radius-sm);
+  color: #17213a;
+  font-size: 16px;
+}
+
+.answered {
+  background: #ecf9f0;
+  border-color: #bfe7cc;
+  color: #137340;
+}
+
+.current {
+  background: var(--c-primary);
+  color: #fff;
+  border-color: var(--c-primary);
+}
+
+.legend {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  align-items: center;
+  gap: 18px 12px;
+  border-top: 1px solid var(--c-line);
+  margin: 26px calc(-1 * clamp(18px, 2.2vw, 29px)) -4px;
+  padding: 25px clamp(18px, 2.2vw, 29px) 0;
+  color: #5e6881;
+  font-size: 14px;
+}
+
+.dot {
+  display: block;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+}
+
+.green {
+  background: var(--c-success);
+}
+.purple {
+  background: var(--c-primary);
+}
+.empty {
+  border: 1px solid #cfd6e4;
+}
+
+.tip {
+  color: #3e4965;
+  line-height: 1.6;
+}
+
+.tip strong {
+  display: block;
+  font-size: 16px;
+  margin-bottom: 10px;
+  color: var(--c-ink);
+}
+
+.tip p {
+  margin: 0 0 10px;
+}
+
+.tip small {
+  color: var(--c-muted);
+}
+
+@media (max-width: 1050px) {
+  .side {
+    margin-top: 15px;
+  }
+  .numbers {
+    grid-template-columns: repeat(auto-fit, minmax(46px, 1fr));
+  }
+  .number {
+    aspect-ratio: unset;
+    height: 48px;
+  }
+}
+
+@media (max-width: 560px) {
+  .top {
+    margin-bottom: 16px;
+  }
+  .pill {
+    padding: 8px 12px;
+  }
+  .answer {
+    gap: 12px;
+  }
+  .options {
+    max-height: min(44svh, 340px);
+  }
+  .actions > * {
+    flex: 1;
+    padding-inline: 10px;
+  }
+}
+@media (min-width: 1051px) {
+  .card {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+    padding-block: clamp(14px, 1.8vh, 28px);
+  }
+
+  .top {
+    flex-shrink: 0;
+    margin-bottom: clamp(10px, 1.8vh, 22px);
+  }
+
+  .instruction {
+    flex-shrink: 0;
+    margin-bottom: clamp(10px, 1.4vh, 18px);
+  }
+
+  .reading {
+    flex-shrink: 0;
+    margin-bottom: clamp(10px, 1.5vh, 20px);
+    padding-block: clamp(12px, 1.6vh, 23px);
+    line-height: 1.48;
+  }
+
+  .title {
+    flex-shrink: 0;
+    margin-block: clamp(8px, 1.2vh, 15px) clamp(10px, 1.5vh, 21px);
+  }
+
+  .options {
+    flex: 1;
+    min-height: 0;
+    max-height: none;
+    overscroll-behavior: contain;
+  }
+
+  .answer {
+    min-height: clamp(52px, 6.2vh, 66px);
+  }
+
+  .actions {
+    flex-shrink: 0;
+    margin-top: clamp(12px, 1.7vh, 26px);
+  }
+}

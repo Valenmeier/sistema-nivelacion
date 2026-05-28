@@ -1,0 +1,99 @@
+.recorder {
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius-sm);
+  text-align: center;
+  padding: clamp(20px, 2.4vw, 29px) clamp(14px, 3vw, 38px) 18px;
+  margin-top: 22px;
+}
+
+.recordButton {
+  display: grid;
+  place-items: center;
+  width: clamp(74px, 9vw, 88px);
+  height: clamp(74px, 9vw, 88px);
+  border: clamp(11px, 1.3vw, 14px) solid #eceafd;
+  color: #fff;
+  background: var(--c-primary);
+  border-radius: 50%;
+  margin: 0 auto 13px;
+}
+
+.recording {
+  background: var(--c-danger);
+  border-color: #fae9ea;
+}
+
+.recordButton svg {
+  width: 36px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+}
+
+.status {
+  display: block;
+  font-size: clamp(17px, 1.8vw, 20px);
+}
+
+.time {
+  display: block;
+  margin: 5px 0 9px;
+  font-size: 22px;
+  font-weight: 500;
+}
+
+.help { color: #62708b; }
+
+.wave {
+  height: 58px;
+  color: #b9b5ea;
+  letter-spacing: clamp(2px, .45vw, 5px);
+  border: 1px solid #e6e5f2;
+  border-radius: var(--radius-sm);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 17px 0 12px;
+  overflow: hidden;
+  font-size: clamp(18px, 2vw, 24px);
+}
+
+.preview {
+  display: block;
+  margin: 12px auto;
+  width: min(100%, 520px);
+}
+
+.controls {
+  display: flex;
+  gap: 15px;
+  margin: 13px 0 10px;
+}
+
+.controls button {
+  flex: 1;
+  min-height: 43px;
+  border-radius: 7px;
+  border: 1px solid #dde4ee;
+  background: #fff;
+  color: #50607b;
+}
+
+.controls button:disabled {
+  color: #b9c0d1;
+  cursor: not-allowed;
+}
+
+.note {
+  border-top: 1px solid var(--c-line);
+  padding-top: 14px;
+  text-align: left;
+  font-size: 14px;
+  margin-bottom: 0;
+}
+
+.error { color: #d53b42; font-size: 14px; }
+
+@media (max-width: 520px) {
+  .controls { flex-direction: column; }
+}

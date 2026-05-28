@@ -1,0 +1,12 @@
+.card {
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius-md);
+  padding: clamp(18px, 2.2vw, 29px);
+  margin-bottom: clamp(14px, 2vw, 24px);
+  background: var(--c-surface);
+}
+
+.title {
+  font-size: clamp(17px, 1.7vw, 19px);
+  margin: 0 0 clamp(18px, 2vw, 29px);
+}

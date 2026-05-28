@@ -1,0 +1,77 @@
+.card {
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius-md);
+  background: var(--c-surface);
+  padding: clamp(17px, 2.4vw, 29px);
+  min-width: 0;
+}
+
+.heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: clamp(12px, 2vw, 20px);
+}
+
+.title h2 {
+  font-size: clamp(18px, 1.8vw, 20px);
+  margin: 0;
+}
+
+.icon {
+  width: clamp(46px, 5vw, 55px);
+  height: clamp(46px, 5vw, 55px);
+  background: #f0edff;
+  color: var(--c-primary);
+  border-radius: var(--radius-sm);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.icon svg {
+  width: 28px;
+  height: 28px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+}
+
+.instruction {
+  margin: 0 0 18px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.prompt {
+  background: var(--c-soft);
+  padding: clamp(16px, 2vw, 23px) clamp(14px, 2vw, 20px);
+  border-radius: var(--radius-sm);
+  color: #151e3e;
+  font-size: clamp(15px, 1.45vw, 17px);
+  line-height: 1.55;
+}
+
+.prompt p { margin: 0 0 17px; }
+.prompt p:last-child { margin: 0; }
+
+.actions {
+  margin-top: clamp(18px, 2.4vw, 30px);
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.actionsEnd { justify-content: flex-end; }
+
+@media (max-width: 560px) {
+  .heading { align-items: flex-start; }
+  .actions > * { flex: 1; padding-inline: 10px; }
+}

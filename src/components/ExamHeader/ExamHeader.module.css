@@ -1,0 +1,52 @@
+.header {
+  max-width: var(--page-max);
+  margin: 0 auto clamp(14px, 2vw, 20px);
+  min-height: clamp(54px, 6vw, 62px);
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title {
+  font-size: clamp(20px, 2.25vw, 27px);
+  letter-spacing: -0.025em;
+  margin: 0;
+}
+
+.timer {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  flex-shrink: 0;
+}
+
+.icon {
+  fill: none;
+  stroke: #556176;
+  stroke-width: 1.8;
+  width: clamp(25px, 3vw, 33px);
+  height: clamp(25px, 3vw, 33px);
+}
+
+.label {
+  display: block;
+  font-size: 13px;
+  color: var(--c-muted);
+}
+
+.time {
+  display: block;
+  font-size: clamp(16px, 1.8vw, 19px);
+  color: var(--c-primary);
+  font-weight: 500;
+}
+
+@media (max-width: 480px) {
+  .label {
+    display: none;
+  }
+  .title {
+    max-width: 58%;
+  }
+}

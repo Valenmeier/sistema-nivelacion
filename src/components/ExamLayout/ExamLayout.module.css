@@ -1,0 +1,52 @@
+.page {
+  min-height: 100svh;
+  padding: clamp(12px, 2vw, 22px) var(--pad) 28px;
+}
+
+.grid {
+  /* El ancho pertenece al layout, no al contenido de cada pregunta. */
+  inline-size: min(100%, var(--page-max));
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--side-width);
+  gap: var(--gap);
+  align-items: start;
+}
+
+@media (max-width: 1050px) {
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .production > :last-child {
+    order: -1;
+  }
+}
+
+@media (max-width: 580px) {
+  .page {
+    padding-inline: 10px;
+  }
+}
+
+@media (min-width: 1051px) {
+  .quizPage {
+    block-size: 100dvh;
+    min-block-size: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: clamp(12px, 1.8vh, 22px);
+  }
+
+  .quizGrid {
+    flex: 1;
+    min-block-size: 0;
+    grid-template-rows: minmax(0, 1fr);
+  }
+
+  .quizGrid > :first-child {
+    block-size: 100%;
+    min-block-size: 0;
+  }
+}

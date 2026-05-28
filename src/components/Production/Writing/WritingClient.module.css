@@ -1,0 +1,49 @@
+.editor {
+  border: 1.5px solid var(--c-primary);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  margin-top: 22px;
+}
+
+.toolbar {
+  min-height: 55px;
+  border-bottom: 1px solid var(--c-line);
+  padding-inline: clamp(14px, 2vw, 25px);
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  align-items: center;
+  color: #36425d;
+}
+
+.format {
+  font-size: 18px;
+  word-spacing: clamp(5px, 1vw, 15px);
+  white-space: nowrap;
+}
+
+.count { color: #6d7791; }
+
+.textarea {
+  width: 100%;
+  min-height: clamp(235px, 36vh, 315px);
+  resize: vertical;
+  border: 0;
+  outline: 0;
+  padding: clamp(16px, 2.1vw, 24px);
+  font-size: clamp(16px, 1.5vw, 17px);
+  color: var(--c-ink);
+}
+
+.info {
+  color: var(--c-primary);
+  background: #f5f3ff;
+  border-radius: var(--radius-sm);
+  padding: 16px 18px;
+  font-size: 15px;
+  margin: 19px 0 0;
+}
+
+@media (max-width: 430px) {
+  .toolbar { flex-direction: column; align-items: flex-start; padding-block: 10px; }
+}
