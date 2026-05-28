@@ -47,9 +47,17 @@ export default function MultipleChoiceClient({ questions }) {
               marked[question.id] && bookmark.selected,
             )}
             onClick={toggleMark}
+            aria-pressed={Boolean(marked[question.id])}
+            aria-label={
+              marked[question.id]
+                ? "Quitar marca para revisar"
+                : "Marcar para revisar"
+            }
           >
             <BookmarkIcon className={bookmark.icon} />
-            <span className={bookmark.label}>Marcar para revisar</span>
+            <span className={bookmark.label}>
+              {marked[question.id] ? "Marcada para revisar" : "Marcar para revisar"}
+            </span>
           </button>
         </div>
         <p className={styles.instruction}>{question.instruction}</p>
@@ -97,25 +105,41 @@ export default function MultipleChoiceClient({ questions }) {
         <section className={panel.card}>
           <h2 className={panel.title}>Navegador de preguntas</h2>
           <div className={styles.numbers}>
-            {questions.map((item, index) => (
-              <button
-                key={item.id}
-                className={cx(
-                  styles.number,
-                  index === currentIndex && styles.current,
-                  answers[item.id] !== undefined &&
-                    index !== currentIndex &&
-                    styles.answered,
-                )}
-                onClick={() => setCurrentIndex(index)}
-              >
-                {index + 1}
-              </button>
-            ))}
+            {questions.map((item, index) => {
+              const isCurrent = index === currentIndex;
+              const isAnswered = answers[item.id] !== undefined;
+              const isMarked = Boolean(marked[item.id]);
+              const states = [
+                isCurrent && "actual",
+                isAnswered && "respondida",
+                isMarked && "marcada para revisar",
+              ]
+                .filter(Boolean)
+                .join(", ");
+
+              return (
+                <button
+                  key={item.id}
+                  className={cx(
+                    styles.number,
+                    isAnswered && !isCurrent && !isMarked && styles.answered,
+                    isMarked && styles.marked,
+                    isCurrent && styles.current,
+                    isCurrent && isMarked && styles.markedCurrent,
+                  )}
+                  onClick={() => setCurrentIndex(index)}
+                  aria-label={`Pregunta ${index + 1}${states ? `: ${states}` : ": sin responder"}`}
+                  title={isMarked ? "Marcada para revisar" : undefined}
+                >
+                  {index + 1}
+                </button>
+              );
+            })}
           </div>
           <div className={styles.legend}>
             <span className={cx(styles.dot, styles.green)} /> Respondida
             <span className={cx(styles.dot, styles.purple)} /> Actual
+            <span className={cx(styles.dot, styles.amber)} /> Marcada
             <span className={cx(styles.dot, styles.empty)} /> Sin responder
           </div>
         </section>

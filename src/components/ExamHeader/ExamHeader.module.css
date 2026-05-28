@@ -1,5 +1,5 @@
 .header {
-  max-width: var(--page-max);
+  inline-size: min(100%, var(--page-max));
   margin: 0 auto clamp(14px, 2vw, 20px);
   min-height: clamp(54px, 6vw, 62px);
   display: flex;

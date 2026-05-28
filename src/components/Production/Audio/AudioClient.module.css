@@ -97,3 +97,47 @@
 @media (max-width: 520px) {
   .controls { flex-direction: column; }
 }
+
+@media (min-width: 1051px) {
+  .recorder {
+    flex: 1;
+    min-block-size: 0;
+    margin-top: clamp(10px, 1.3vh, 17px);
+    padding: clamp(12px, 1.6vh, 20px) clamp(14px, 3vw, 38px) clamp(10px, 1.4vh, 16px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow-y: auto;
+  }
+
+  .recordButton {
+    width: clamp(60px, 8vh, 78px);
+    height: clamp(60px, 8vh, 78px);
+    border-width: clamp(9px, 1.2vh, 12px);
+    margin-bottom: clamp(7px, 1vh, 11px);
+  }
+
+  .recordButton svg {
+    width: clamp(27px, 3.8vh, 34px);
+  }
+
+  .time {
+    margin: clamp(3px, .7vh, 5px) 0 clamp(5px, 1vh, 8px);
+  }
+
+  .wave {
+    height: clamp(40px, 5.5vh, 52px);
+    margin: clamp(10px, 1.4vh, 15px) 0 clamp(8px, 1.2vh, 11px);
+    flex-shrink: 0;
+  }
+
+  .controls {
+    flex-shrink: 0;
+    margin: clamp(8px, 1.2vh, 12px) 0 clamp(7px, 1vh, 10px);
+  }
+
+  .note {
+    flex-shrink: 0;
+    padding-top: clamp(8px, 1.1vh, 12px);
+  }
+}

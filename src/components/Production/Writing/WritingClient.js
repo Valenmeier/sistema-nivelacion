@@ -8,16 +8,30 @@ import styles from "./WritingClient.module.css";
 import button from "@/components/ui/Button/Button.module.css";
 import bookmark from "@/components/ui/Bookmark/Bookmark.module.css";
 import { cx } from "@/lib/cx";
-
-const STORAGE_KEY = "set-writing-answer";
+import { readProductionMarks, saveProductionMark } from "../sectionProgress";
+import { readWritingResponse, saveWritingResponse } from "../responseStorage";
 
 export default function WritingClient({ task }) {
   const router = useRouter();
   const [text, setText] = useState("");
   const [marked, setMarked] = useState(false);
+  const [responseLoaded, setResponseLoaded] = useState(false);
 
-  useEffect(() => setText(localStorage.getItem(STORAGE_KEY) || ""), []);
-  useEffect(() => localStorage.setItem(STORAGE_KEY, text), [text]);
+  useEffect(() => {
+    setText(readWritingResponse());
+    setMarked(readProductionMarks().writing);
+    setResponseLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (responseLoaded) saveWritingResponse(text);
+  }, [responseLoaded, text]);
+
+  function toggleMarked() {
+    const next = !marked;
+    setMarked(next);
+    saveProductionMark("writing", next);
+  }
 
   const wordCount = useMemo(() => text.trim() ? text.trim().split(/\s+/).length : 0, [text]);
 
@@ -28,8 +42,16 @@ export default function WritingClient({ task }) {
           <span className={production.icon}><PencilIcon /></span>
           <h2>Sección 2: Producción escrita</h2>
         </div>
-        <button className={cx(bookmark.button, marked && bookmark.selected)} onClick={() => setMarked(!marked)}>
-          <BookmarkIcon className={bookmark.icon} /><span className={bookmark.label}>Marcar para revisar</span>
+        <button
+          className={cx(bookmark.button, marked && bookmark.selected)}
+          onClick={toggleMarked}
+          aria-pressed={marked}
+          aria-label={marked ? "Quitar marca para revisar" : "Marcar para revisar"}
+        >
+          <BookmarkIcon className={bookmark.icon} />
+          <span className={bookmark.label}>
+            {marked ? "Marcada para revisar" : "Marcar para revisar"}
+          </span>
         </button>
       </div>
       <p className={production.instruction}>Leé la consigna atentamente y escribí tu respuesta.</p>

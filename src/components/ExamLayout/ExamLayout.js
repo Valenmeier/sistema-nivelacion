@@ -9,14 +9,15 @@ export default function ExamLayout({
 }) {
   const isQuiz = mode === "quiz";
   const isProduction = mode === "production";
+  const usesDesktopViewport = isQuiz || isProduction;
 
   return (
-    <main className={cx(styles.page, isQuiz && styles.quizPage)}>
+    <main className={cx(styles.page, usesDesktopViewport && styles.desktopViewportPage)}>
       <ExamHeader showTimer={showTimer} />
       <div
         className={cx(
           styles.grid,
-          isQuiz && styles.quizGrid,
+          usesDesktopViewport && styles.desktopViewportGrid,
           isProduction && styles.production,
         )}
       >

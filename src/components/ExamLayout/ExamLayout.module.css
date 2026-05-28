@@ -30,7 +30,7 @@
 }
 
 @media (min-width: 1051px) {
-  .quizPage {
+  .desktopViewportPage {
     block-size: 100dvh;
     min-block-size: 0;
     overflow: hidden;
@@ -39,13 +39,13 @@
     padding-bottom: clamp(12px, 1.8vh, 22px);
   }
 
-  .quizGrid {
+  .desktopViewportGrid {
     flex: 1;
     min-block-size: 0;
     grid-template-rows: minmax(0, 1fr);
   }
 
-  .quizGrid > :first-child {
+  .desktopViewportGrid > :first-child {
     block-size: 100%;
     min-block-size: 0;
   }

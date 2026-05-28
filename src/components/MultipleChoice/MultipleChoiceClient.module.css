@@ -118,6 +118,7 @@
   border-radius: var(--radius-sm);
   color: #17213a;
   font-size: 16px;
+  position: relative;
 }
 
 .answered {
@@ -126,10 +127,31 @@
   color: #137340;
 }
 
+.marked {
+  background: #fff7e6;
+  border-color: #f0cc77;
+  color: #966100;
+}
+
+.marked::after {
+  content: "";
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #f2a900;
+}
+
 .current {
   background: var(--c-primary);
   color: #fff;
   border-color: var(--c-primary);
+}
+
+.markedCurrent {
+  box-shadow: 0 0 0 2px #f2a900;
 }
 
 .legend {
@@ -156,6 +178,9 @@
 }
 .purple {
   background: var(--c-primary);
+}
+.amber {
+  background: #f2a900;
 }
 .empty {
   border: 1px solid #cfd6e4;

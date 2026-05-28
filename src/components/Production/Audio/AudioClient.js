@@ -8,6 +8,12 @@ import styles from "./AudioClient.module.css";
 import button from "@/components/ui/Button/Button.module.css";
 import bookmark from "@/components/ui/Bookmark/Bookmark.module.css";
 import { cx } from "@/lib/cx";
+import { readProductionMarks, saveProductionMark } from "../sectionProgress";
+import {
+  deleteAudioResponse,
+  readAudioResponse,
+  saveAudioResponse,
+} from "../responseStorage";
 
 function formatSeconds(value) {
   const minutes = String(Math.floor(value / 60)).padStart(2, "0");
@@ -18,17 +24,57 @@ function formatSeconds(value) {
 export default function AudioClient({ task }) {
   const router = useRouter();
   const recorderRef = useRef(null);
+  const streamRef = useRef(null);
   const chunksRef = useRef([]);
   const timerRef = useRef(null);
+  const secondsRef = useRef(0);
+  const audioElementRef = useRef(null);
+  const mountedRef = useRef(false);
   const [recording, setRecording] = useState(false);
   const [seconds, setSeconds] = useState(0);
   const [audioUrl, setAudioUrl] = useState("");
+  const [audioLoading, setAudioLoading] = useState(true);
   const [marked, setMarked] = useState(false);
   const [error, setError] = useState("");
 
+  useEffect(() => {
+    let cancelled = false;
+    mountedRef.current = true;
+    setMarked(readProductionMarks().audio);
+
+    async function restoreAudio() {
+      try {
+        const savedAudio = await readAudioResponse();
+        if (!cancelled && savedAudio?.blob) {
+          const restoredSeconds = Number(savedAudio.seconds) || 0;
+          secondsRef.current = restoredSeconds;
+          setSeconds(restoredSeconds);
+          setAudioUrl(URL.createObjectURL(savedAudio.blob));
+        }
+      } catch {
+        if (!cancelled) {
+          setError("No se pudo recuperar la grabación guardada en este navegador.");
+        }
+      } finally {
+        if (!cancelled) setAudioLoading(false);
+      }
+    }
+
+    restoreAudio();
+
+    return () => {
+      cancelled = true;
+      mountedRef.current = false;
+      clearInterval(timerRef.current);
+      if (recorderRef.current?.state === "recording") {
+        recorderRef.current.stop();
+      }
+      streamRef.current?.getTracks().forEach((track) => track.stop());
+    };
+  }, []);
+
   useEffect(
     () => () => {
-      clearInterval(timerRef.current);
       if (audioUrl) URL.revokeObjectURL(audioUrl);
     },
     [audioUrl],
@@ -41,30 +87,53 @@ export default function AudioClient({ task }) {
   }
 
   async function startRecording() {
+    if (audioLoading || recording) return;
     setError("");
+
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const recorder = new MediaRecorder(stream);
+      streamRef.current = stream;
       chunksRef.current = [];
       recorderRef.current = recorder;
-      recorder.ondataavailable = ({ data }) =>
-        data.size && chunksRef.current.push(data);
-      recorder.onstop = () => {
+
+      recorder.ondataavailable = ({ data }) => {
+        if (data.size) chunksRef.current.push(data);
+      };
+
+      recorder.onstop = async () => {
         const blob = new Blob(chunksRef.current, {
           type: recorder.mimeType || "audio/webm",
         });
-        setAudioUrl(URL.createObjectURL(blob));
         stream.getTracks().forEach((track) => track.stop());
+        streamRef.current = null;
+
+        if (!blob.size) return;
+
+        try {
+          await saveAudioResponse(blob, secondsRef.current);
+        } catch {
+          if (mountedRef.current) {
+            setError("No se pudo guardar la grabación temporalmente en este navegador.");
+          }
+        }
+
+        if (mountedRef.current) {
+          setAudioUrl(URL.createObjectURL(blob));
+        }
       };
+
       recorder.start();
       setAudioUrl("");
+      secondsRef.current = 0;
       setSeconds(0);
       setRecording(true);
       timerRef.current = setInterval(() => {
-        setSeconds((value) => {
-          if (value + 1 >= task.maxSeconds) stopRecording();
-          return Math.min(value + 1, task.maxSeconds);
-        });
+        const nextSeconds = Math.min(secondsRef.current + 1, task.maxSeconds);
+        secondsRef.current = nextSeconds;
+        setSeconds(nextSeconds);
+
+        if (nextSeconds >= task.maxSeconds) stopRecording();
       }, 1000);
     } catch {
       setError(
@@ -73,10 +142,23 @@ export default function AudioClient({ task }) {
     }
   }
 
-  function removeAudio() {
-    if (audioUrl) URL.revokeObjectURL(audioUrl);
+  function toggleMarked() {
+    const next = !marked;
+    setMarked(next);
+    saveProductionMark("audio", next);
+  }
+
+  async function removeAudio() {
+    setError("");
     setAudioUrl("");
+    secondsRef.current = 0;
     setSeconds(0);
+
+    try {
+      await deleteAudioResponse();
+    } catch {
+      setError("No se pudo eliminar la grabación guardada en este navegador.");
+    }
   }
 
   return (
@@ -90,10 +172,14 @@ export default function AudioClient({ task }) {
         </div>
         <button
           className={cx(bookmark.button, marked && bookmark.selected)}
-          onClick={() => setMarked(!marked)}
+          onClick={toggleMarked}
+          aria-pressed={marked}
+          aria-label={marked ? "Quitar marca para revisar" : "Marcar para revisar"}
         >
           <BookmarkIcon className={bookmark.icon} />
-          <span className={bookmark.label}>Marcar para revisar</span>
+          <span className={bookmark.label}>
+            {marked ? "Marcada para revisar" : "Marcar para revisar"}
+          </span>
         </button>
       </div>
       <p className={production.instruction}>
@@ -106,14 +192,19 @@ export default function AudioClient({ task }) {
         <button
           className={cx(styles.recordButton, recording && styles.recording)}
           onClick={recording ? stopRecording : startRecording}
+          disabled={audioLoading}
           aria-label={recording ? "Detener grabación" : "Comenzar grabación"}
         >
           <MicrophoneIcon />
         </button>
         <strong className={styles.status}>
-          {recording
-            ? "Grabando... presioná para detener"
-            : "Presioná para grabar"}
+          {audioLoading
+            ? "Recuperando grabación..."
+            : recording
+              ? "Grabando... presioná para detener"
+              : audioUrl
+                ? "Audio grabado"
+                : "Presioná para grabar"}
         </strong>
         <span className={styles.time}>{formatSeconds(seconds)}</span>
         <p className={styles.help}>
@@ -124,20 +215,20 @@ export default function AudioClient({ task }) {
           ▁▂▁▃▂▁▃▅▂▁▃▁▂▅▃▁▂▆▂▁▃▁▂▅▁▂▁
         </div>
         {audioUrl && (
-          <audio controls src={audioUrl} className={styles.preview} />
+          <audio ref={audioElementRef} controls src={audioUrl} className={styles.preview} />
         )}
         {error && <p className={styles.error}>{error}</p>}
         <div className={styles.controls}>
           <button
-            disabled={!audioUrl}
-            onClick={() => document.querySelector("audio")?.play()}
+            disabled={!audioUrl || recording}
+            onClick={() => audioElementRef.current?.play()}
           >
             ▶ Reproducir
           </button>
-          <button disabled={!audioUrl} onClick={startRecording}>
+          <button disabled={!audioUrl || audioLoading || recording} onClick={startRecording}>
             ↻ Volver a grabar
           </button>
-          <button disabled={!audioUrl} onClick={removeAudio}>
+          <button disabled={!audioUrl || recording} onClick={removeAudio}>
             ⌫ Eliminar
           </button>
         </div>
@@ -148,12 +239,14 @@ export default function AudioClient({ task }) {
       <div className={production.actions}>
         <button
           className={cx(button.base, button.secondary)}
+          disabled={recording}
           onClick={() => router.push("/exam/writing")}
         >
           <ArrowIcon className={cx(button.icon, button.reverse)} /> Anterior
         </button>
         <button
           className={cx(button.base, button.primary, button.compact)}
+          disabled={recording}
           onClick={() => router.push("/exam/finished")}
         >
           Guardar y continuar <ArrowIcon className={button.icon} />
