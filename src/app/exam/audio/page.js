@@ -7,10 +7,12 @@ import { getCurrentExam } from "@/lib/session";
 export default async function AudioPage() {
   const exam = await getCurrentExam();
   if (!exam) redirect("/");
+  if (exam.status === "CANCELLED") redirect("/exam/cancelled");
+  if (!exam.audio || !exam.writing) redirect("/exam/multiple-choice");
 
   return (
     <ExamLayout mode="production">
-      <AudioClient task={exam.audio} />
+      <AudioClient task={exam.audio} writingTask={exam.writing} />
       <SectionNavigator active="audio" />
     </ExamLayout>
   );

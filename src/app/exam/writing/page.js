@@ -7,6 +7,8 @@ import { getCurrentExam } from "@/lib/session";
 export default async function WritingPage() {
   const exam = await getCurrentExam();
   if (!exam) redirect("/");
+  if (exam.status === "CANCELLED") redirect("/exam/cancelled");
+  if (!exam.writing) redirect("/exam/multiple-choice");
 
   return (
     <ExamLayout mode="production">

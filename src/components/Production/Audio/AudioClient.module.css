@@ -141,3 +141,138 @@
     padding-top: clamp(8px, 1.1vh, 12px);
   }
 }
+
+
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgb(8 18 44 / 52%);
+  backdrop-filter: blur(3px);
+}
+
+.confirmModal {
+  inline-size: min(100%, 570px);
+  border: 1px solid #d9d7ff;
+  border-radius: 22px;
+  background: #fff;
+  color: #16213d;
+  padding: clamp(24px, 4vw, 32px);
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  box-shadow: 0 24px 68px rgb(9 18 43 / 28%);
+}
+
+.confirmIcon {
+  flex: 0 0 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--c-primary);
+  color: #fff;
+  font-size: 29px;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.confirmContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.confirmLabel {
+  margin: 0 0 6px;
+  color: var(--c-primary);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .045em;
+}
+
+.confirmModal h2 {
+  margin: 0 0 10px;
+  color: #13213e;
+  font-size: clamp(21px, 3vw, 25px);
+  line-height: 1.22;
+  letter-spacing: -.025em;
+}
+
+.confirmModal p:not(.confirmLabel) {
+  margin: 0 0 24px;
+  color: #52617f;
+  font-size: 15px;
+  line-height: 1.52;
+}
+
+.confirmActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.cancelConfirm,
+.acceptConfirm {
+  min-height: 48px;
+  border-radius: 11px;
+  font: inherit;
+  font-weight: 700;
+  padding: 0 18px;
+  cursor: pointer;
+  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+}
+
+.cancelConfirm {
+  border: 1px solid #d6dceb;
+  background: #fff;
+  color: #33415f;
+}
+
+.acceptConfirm {
+  border: 0;
+  background: var(--c-primary);
+  color: #fff;
+}
+
+.cancelConfirm:hover:not(:disabled),
+.acceptConfirm:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.acceptConfirm:hover:not(:disabled) {
+  box-shadow: 0 9px 18px rgb(78 69 245 / 25%);
+}
+
+.cancelConfirm:focus-visible,
+.acceptConfirm:focus-visible {
+  outline: 3px solid rgb(78 69 245 / 20%);
+  outline-offset: 3px;
+}
+
+.cancelConfirm:disabled,
+.acceptConfirm:disabled {
+  cursor: not-allowed;
+  opacity: .6;
+}
+
+@media (max-width: 540px) {
+  .confirmModal {
+    display: block;
+  }
+
+  .confirmIcon {
+    margin-bottom: 15px;
+  }
+
+  .confirmActions {
+    display: grid;
+  }
+
+  .acceptConfirm {
+    order: -1;
+  }
+}

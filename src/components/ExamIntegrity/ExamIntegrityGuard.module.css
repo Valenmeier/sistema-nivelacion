@@ -1,0 +1,102 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgb(8 18 44 / 52%);
+  backdrop-filter: blur(3px);
+}
+
+.modal {
+  inline-size: min(100%, 560px);
+  border: 1px solid #f2b6bd;
+  border-radius: 22px;
+  background: #fff;
+  color: #16213d;
+  padding: clamp(24px, 4vw, 32px);
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  box-shadow: 0 24px 68px rgb(9 18 43 / 28%);
+}
+
+.icon {
+  flex: 0 0 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #d93346;
+  color: #fff;
+  font-size: 31px;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.label {
+  margin: 0 0 6px;
+  color: #d93346;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .045em;
+}
+
+.modal h2 {
+  margin: 0 0 10px;
+  color: #13213e;
+  font-size: clamp(21px, 3vw, 25px);
+  line-height: 1.22;
+  letter-spacing: -.025em;
+}
+
+.modal p:not(.label) {
+  margin: 0 0 24px;
+  color: #52617f;
+  font-size: 15px;
+  line-height: 1.52;
+}
+
+.button {
+  min-height: 48px;
+  border: 0;
+  border-radius: 11px;
+  background: #d93346;
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  padding: 0 20px;
+  cursor: pointer;
+  transition: transform .16s ease, box-shadow .16s ease;
+}
+
+.button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 9px 18px rgb(217 51 70 / 25%);
+}
+
+.button:focus-visible {
+  outline: 3px solid rgb(217 51 70 / 22%);
+  outline-offset: 3px;
+}
+
+@media (max-width: 540px) {
+  .modal {
+    display: block;
+  }
+
+  .icon {
+    margin-bottom: 15px;
+  }
+
+  .button {
+    width: 100%;
+  }
+}

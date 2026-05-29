@@ -6,6 +6,7 @@ import styles from "./LoginForm.module.css";
 import button from "@/components/ui/Button/Button.module.css";
 import utils from "@/components/ui/VisuallyHidden/VisuallyHidden.module.css";
 import { cx } from "@/lib/cx";
+import { clearClientStateForNewAccess } from "@/lib/examClientStorage";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -26,8 +27,9 @@ export default function LoginForm() {
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error);
+      clearClientStateForNewAccess();
       sessionStorage.removeItem("set-exam-end-time");
-      router.push("/exam/multiple-choice");
+      router.push("/exam/registration");
     } catch (requestError) {
       setError(requestError.message || "No se pudo ingresar al examen.");
     } finally {

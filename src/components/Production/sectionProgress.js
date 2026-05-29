@@ -36,3 +36,11 @@ export function saveProductionMark(section, isMarked) {
 
   return nextMarks;
 }
+
+export function clearProductionMarks() {
+  if (typeof window === "undefined") return;
+  window.localStorage.removeItem(PRODUCTION_MARKS_STORAGE_KEY);
+  window.dispatchEvent(
+    new CustomEvent(PRODUCTION_MARKS_EVENT, { detail: EMPTY_MARKS }),
+  );
+}

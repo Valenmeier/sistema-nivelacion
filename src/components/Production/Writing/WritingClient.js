@@ -16,6 +16,8 @@ export default function WritingClient({ task }) {
   const [text, setText] = useState("");
   const [marked, setMarked] = useState(false);
   const [responseLoaded, setResponseLoaded] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     setText(readWritingResponse());
@@ -31,6 +33,25 @@ export default function WritingClient({ task }) {
     const next = !marked;
     setMarked(next);
     saveProductionMark("writing", next);
+  }
+
+  async function saveAndContinue() {
+    setError("");
+    setSaving(true);
+    try {
+      const response = await fetch("/api/attempt/writing", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ promptId: task.id, response: text }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error);
+      router.push("/exam/audio");
+    } catch (requestError) {
+      setError(requestError.message || "No se pudo guardar la producción escrita.");
+    } finally {
+      setSaving(false);
+    }
   }
 
   const wordCount = useMemo(() => text.trim() ? text.trim().split(/\s+/).length : 0, [text]);
@@ -61,8 +82,9 @@ export default function WritingClient({ task }) {
         <textarea className={styles.textarea} value={text} onChange={(event) => setText(event.target.value)} placeholder="Escribí tu respuesta aquí..." />
       </div>
       <p className={styles.info}>ⓘ　Extensión recomendada: entre {task.minWords} y {task.maxWords} palabras.</p>
+      {error && <p className={styles.error} role="alert">{error}</p>}
       <div className={cx(production.actions, production.actionsEnd)}>
-        <button className={cx(button.base, button.primary, button.compact)} onClick={() => router.push("/exam/audio")}>Guardar y continuar <ArrowIcon className={button.icon} /></button>
+        <button className={cx(button.base, button.primary, button.compact)} disabled={saving} onClick={saveAndContinue}>{saving ? "Guardando..." : "Guardar e ir a producción oral"} <ArrowIcon className={button.icon} /></button>
       </div>
     </section>
   );

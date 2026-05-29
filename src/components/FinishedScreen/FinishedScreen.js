@@ -9,16 +9,17 @@ export default function FinishedScreen() {
     <>
       <section className={styles.completion}>
         <div className={styles.check}>✓</div>
-        <h2 className={styles.title}>Examen finalizado</h2>
+        <h2 className={styles.title}>Evaluación completada</h2>
         <p className={styles.lead}>
-          Nos pondremos en contacto en unos días para coordinar las siguientes
-          etapas.
+          Completaste todas las secciones de la evaluación de nivelación.
         </p>
         <div className={styles.line} />
         <p className={styles.sent}>
-          <strong>✉　Gracias por completar el proceso de nivelación.</strong>
+          <strong>Gracias por tu participación.</strong>
           <br />
-          <span>Tus respuestas fueron enviadas correctamente.</span>
+          <span>
+            SET Idiomas analizará tus respuestas para determinar el nivel recomendado.
+          </span>
         </p>
         <Link
           className={cx(button.base, button.secondary, styles.home)}
@@ -45,8 +46,7 @@ export default function FinishedScreen() {
         <section className={cx(panel.card, styles.next)}>
           <h2 className={panel.title}>🗓　¿Qué sigue?</h2>
           <p>
-            Nuestro equipo evaluará tus respuestas y te contactará por email
-            para informarte los próximos pasos.
+            El equipo académico revisará la evaluación y se comunicará por los medios informados si corresponde.
           </p>
         </section>
       </aside>

@@ -1,0 +1,422 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ConfigurationStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+}
+
+enum QuestionDifficulty {
+  EASY
+  HARD
+}
+
+enum CampaignType {
+  INDIVIDUAL
+  COMPANY
+  GROUP
+}
+
+enum CampaignStatus {
+  DRAFT
+  ACTIVE
+  CLOSED
+  ARCHIVED
+}
+
+enum AccessCodeStatus {
+  AVAILABLE
+  STARTED
+  USED
+  EXPIRED
+  CANCELLED
+}
+
+enum AttemptStatus {
+  REGISTRATION
+  IN_PROGRESS
+  CANCELLED
+  COMPLETED_PENDING_PROCESSING
+  PROCESSING
+  REPORT_READY
+  ERROR
+}
+
+enum AttemptStage {
+  REGISTRATION
+  POLICY
+  MULTIPLE_CHOICE
+  WRITING
+  AUDIO
+  FINISHED
+}
+
+enum BlockPhase {
+  DIAGNOSTIC
+  EXPLORATION
+  CONFIRMATION
+  RESOLUTION
+}
+
+enum ProcessingStatus {
+  PENDING
+  DISPATCHED
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum ReportReviewStatus {
+  PENDING_REVIEW
+  REVIEWED
+  APPROVED
+}
+
+model Language {
+  id             String                    @id @default(uuid()) @db.Uuid
+  code           String                    @unique @db.VarChar(12)
+  name           String                    @db.VarChar(80)
+  active         Boolean                   @default(true)
+  createdAt      DateTime                  @default(now())
+  updatedAt      DateTime                  @updatedAt
+  levels         Level[]
+  competencies   Competency[]
+  configurations AssessmentConfiguration[]
+  questions      Question[]
+  writingPrompts WritingPrompt[]
+  oralPrompts    OralPrompt[]
+  campaigns      Campaign[]
+  attempts       Attempt[]
+}
+
+model Level {
+  id                  String              @id @default(uuid()) @db.Uuid
+  languageId          String              @db.Uuid
+  code                String              @db.VarChar(12)
+  cefrBand            String              @db.VarChar(4)
+  sortOrder           Int
+  active              Boolean             @default(true)
+  language            Language            @relation(fields: [languageId], references: [id], onDelete: Cascade)
+  questions           Question[]
+  writingPrompts      WritingPrompt[]
+  oralPrompts         OralPrompt[]
+  startingAttempts    Attempt[]           @relation("StartingLevel")
+  resultAttempts      Attempt[]           @relation("MultipleChoiceResultLevel")
+  evaluatedBlocks     AttemptBlock[]
+  recommendedReports  FinalReport[]       @relation("RecommendedReportLevel")
+
+  @@unique([languageId, code])
+  @@unique([languageId, sortOrder])
+  @@index([languageId, active])
+}
+
+model Competency {
+  id              String                    @id @default(uuid()) @db.Uuid
+  languageId      String                    @db.Uuid
+  code            String                    @db.VarChar(20)
+  name            String                    @db.VarChar(120)
+  active          Boolean                   @default(true)
+  createdAt       DateTime                  @default(now())
+  updatedAt       DateTime                  @updatedAt
+  language        Language                  @relation(fields: [languageId], references: [id], onDelete: Cascade)
+  configurations  ConfigurationCompetency[]
+  questions       Question[]
+
+  @@unique([languageId, code])
+  @@index([languageId, active])
+}
+
+model AssessmentConfiguration {
+  id           String                    @id @default(uuid()) @db.Uuid
+  languageId   String                    @db.Uuid
+  version      Int
+  name         String                    @db.VarChar(120)
+  status       ConfigurationStatus       @default(DRAFT)
+  createdAt    DateTime                  @default(now())
+  publishedAt  DateTime?
+  language     Language                  @relation(fields: [languageId], references: [id], onDelete: Cascade)
+  competencies ConfigurationCompetency[]
+  campaigns    Campaign[]
+  attempts     Attempt[]
+
+  @@unique([languageId, version])
+  @@index([languageId, status])
+}
+
+model ConfigurationCompetency {
+  configurationId String                  @db.Uuid
+  competencyId    String                  @db.Uuid
+  weight          Int
+  active          Boolean                 @default(true)
+  configuration   AssessmentConfiguration @relation(fields: [configurationId], references: [id], onDelete: Cascade)
+  competency      Competency              @relation(fields: [competencyId], references: [id], onDelete: Restrict)
+
+  @@id([configurationId, competencyId])
+  @@index([configurationId, active])
+}
+
+model Question {
+  id             String             @id @default(uuid()) @db.Uuid
+  legacyKey      String?            @unique @db.VarChar(40)
+  languageId     String             @db.Uuid
+  levelId        String             @db.Uuid
+  competencyId   String             @db.Uuid
+  difficulty     QuestionDifficulty
+  instruction    String             @default("Seleccioná la respuesta correcta.")
+  passage        String?
+  statement      String
+  active         Boolean            @default(true)
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  language       Language           @relation(fields: [languageId], references: [id], onDelete: Cascade)
+  level          Level              @relation(fields: [levelId], references: [id], onDelete: Restrict)
+  competency     Competency         @relation(fields: [competencyId], references: [id], onDelete: Restrict)
+  options        QuestionOption[]
+  attemptEntries AttemptBlockQuestion[]
+
+  @@index([languageId, levelId, difficulty, competencyId, active])
+}
+
+model QuestionOption {
+  id             String                 @id @default(uuid()) @db.Uuid
+  questionId     String                 @db.Uuid
+  position       Int
+  text           String
+  isCorrect      Boolean                @default(false)
+  question       Question               @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  selectedBy     AttemptBlockQuestion[] @relation("SelectedOption")
+
+  @@unique([questionId, position])
+}
+
+model WritingPrompt {
+  id          String              @id @default(uuid()) @db.Uuid
+  languageId  String              @db.Uuid
+  levelId     String              @db.Uuid
+  prompt      String
+  evaluationNote String?
+  minWords    Int
+  maxWords    Int
+  version     Int                 @default(1)
+  active      Boolean             @default(true)
+  language    Language            @relation(fields: [languageId], references: [id], onDelete: Cascade)
+  level       Level               @relation(fields: [levelId], references: [id], onDelete: Restrict)
+  submissions WritingSubmission[]
+
+  @@index([languageId, levelId, active])
+}
+
+model OralPrompt {
+  id          String            @id @default(uuid()) @db.Uuid
+  languageId  String            @db.Uuid
+  levelId     String            @db.Uuid
+  prompt      String
+  minSeconds  Int
+  maxSeconds  Int
+  version     Int               @default(1)
+  active      Boolean           @default(true)
+  language    Language          @relation(fields: [languageId], references: [id], onDelete: Cascade)
+  level       Level             @relation(fields: [levelId], references: [id], onDelete: Restrict)
+  submissions AudioSubmission[]
+
+  @@index([languageId, levelId, active])
+}
+
+model Organization {
+  id        String     @id @default(uuid()) @db.Uuid
+  name      String     @unique @db.VarChar(160)
+  active    Boolean    @default(true)
+  createdAt DateTime   @default(now())
+  campaigns Campaign[]
+}
+
+model Campaign {
+  id              String                  @id @default(uuid()) @db.Uuid
+  organizationId  String?                 @db.Uuid
+  languageId      String                  @db.Uuid
+  configurationId String                  @db.Uuid
+  name            String                  @db.VarChar(180)
+  type            CampaignType            @default(INDIVIDUAL)
+  status          CampaignStatus          @default(DRAFT)
+  allocatedPlaces Int?
+  expiresAt       DateTime?
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+  organization    Organization?           @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  language        Language                @relation(fields: [languageId], references: [id], onDelete: Restrict)
+  configuration   AssessmentConfiguration @relation(fields: [configurationId], references: [id], onDelete: Restrict)
+  accessCodes     AccessCode[]
+  attempts        Attempt[]
+
+  @@index([organizationId, status])
+  @@index([languageId, status])
+}
+
+model AccessCode {
+  id          String           @id @default(uuid()) @db.Uuid
+  campaignId  String           @db.Uuid
+  codeHash    String           @unique @db.VarChar(64)
+  codeHint    String           @db.VarChar(24)
+  status      AccessCodeStatus @default(AVAILABLE)
+  expiresAt   DateTime?
+  createdAt   DateTime         @default(now())
+  usedAt      DateTime?
+  campaign    Campaign         @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  attempt     Attempt?
+
+  @@index([campaignId, status])
+}
+
+model Student {
+  id        String    @id @default(uuid()) @db.Uuid
+  fullName  String    @db.VarChar(160)
+  email     String    @db.VarChar(254)
+  createdAt DateTime  @default(now())
+  attempts  Attempt[]
+
+  @@index([email])
+}
+
+model Attempt {
+  id                         String                   @id @default(uuid()) @db.Uuid
+  accessCodeId               String                   @unique @db.Uuid
+  campaignId                 String                   @db.Uuid
+  languageId                 String                   @db.Uuid
+  configurationId            String                   @db.Uuid
+  studentId                  String?                  @db.Uuid
+  startLevelId               String?                  @db.Uuid
+  multipleChoiceResultLevelId String?                 @db.Uuid
+  status                     AttemptStatus            @default(REGISTRATION)
+  stage                      AttemptStage             @default(REGISTRATION)
+  abandonmentCount           Int                      @default(0)
+  policyAcceptedAt           DateTime?
+  startedAt                  DateTime?
+  completedAt                DateTime?
+  cancelledAt                DateTime?
+  cancellationReason         String?
+  createdAt                  DateTime                 @default(now())
+  updatedAt                  DateTime                 @updatedAt
+  accessCode                 AccessCode               @relation(fields: [accessCodeId], references: [id], onDelete: Restrict)
+  campaign                   Campaign                 @relation(fields: [campaignId], references: [id], onDelete: Restrict)
+  language                   Language                 @relation(fields: [languageId], references: [id], onDelete: Restrict)
+  configuration              AssessmentConfiguration  @relation(fields: [configurationId], references: [id], onDelete: Restrict)
+  student                    Student?                 @relation(fields: [studentId], references: [id], onDelete: SetNull)
+  startLevel                 Level?                   @relation("StartingLevel", fields: [startLevelId], references: [id], onDelete: Restrict)
+  multipleChoiceResultLevel  Level?                   @relation("MultipleChoiceResultLevel", fields: [multipleChoiceResultLevelId], references: [id], onDelete: Restrict)
+  blocks                     AttemptBlock[]
+  integrityEvents            IntegrityEvent[]
+  writingSubmission          WritingSubmission?
+  audioSubmission            AudioSubmission?
+  processingJob              ProcessingJob?
+  finalReport                FinalReport?
+
+  @@index([campaignId, status])
+  @@index([languageId, status])
+}
+
+model AttemptBlock {
+  id               String                 @id @default(uuid()) @db.Uuid
+  attemptId        String                 @db.Uuid
+  blockNumber      Int
+  phase            BlockPhase
+  evaluatedLevelId String                 @db.Uuid
+  scoreJson        Json?
+  resultJson       Json?
+  sustained        Boolean?
+  createdAt        DateTime               @default(now())
+  completedAt      DateTime?
+  attempt          Attempt                @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  evaluatedLevel   Level                  @relation(fields: [evaluatedLevelId], references: [id], onDelete: Restrict)
+  questions        AttemptBlockQuestion[]
+
+  @@unique([attemptId, blockNumber])
+  @@index([attemptId, completedAt])
+}
+
+model AttemptBlockQuestion {
+  blockId          String          @db.Uuid
+  questionId       String          @db.Uuid
+  position         Int
+  selectedOptionId String?         @db.Uuid
+  answeredAt       DateTime?
+  block            AttemptBlock    @relation(fields: [blockId], references: [id], onDelete: Cascade)
+  question         Question        @relation(fields: [questionId], references: [id], onDelete: Restrict)
+  selectedOption   QuestionOption? @relation("SelectedOption", fields: [selectedOptionId], references: [id], onDelete: Restrict)
+
+  @@id([blockId, questionId])
+  @@unique([blockId, position])
+}
+
+model IntegrityEvent {
+  id             String   @id @default(uuid()) @db.Uuid
+  attemptId      String   @db.Uuid
+  clientEventKey String   @db.VarChar(80)
+  eventType      String   @db.VarChar(40)
+  createdAt      DateTime @default(now())
+  attempt        Attempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+
+  @@unique([attemptId, clientEventKey])
+  @@index([attemptId, createdAt])
+}
+
+model WritingSubmission {
+  id          String        @id @default(uuid()) @db.Uuid
+  attemptId   String        @unique @db.Uuid
+  promptId    String        @db.Uuid
+  response    String
+  wordCount   Int
+  submittedAt DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  attempt     Attempt       @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  prompt      WritingPrompt @relation(fields: [promptId], references: [id], onDelete: Restrict)
+}
+
+model AudioSubmission {
+  id              String     @id @default(uuid()) @db.Uuid
+  attemptId       String     @unique @db.Uuid
+  promptId        String     @db.Uuid
+  bucket          String     @db.VarChar(100)
+  objectKey       String     @db.VarChar(500)
+  mimeType        String?    @db.VarChar(100)
+  durationSeconds Int?
+  sizeBytes       Int?
+  submittedAt     DateTime   @default(now())
+  attempt         Attempt    @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  prompt          OralPrompt @relation(fields: [promptId], references: [id], onDelete: Restrict)
+}
+
+model ProcessingJob {
+  id                 String           @id @default(uuid()) @db.Uuid
+  attemptId          String           @unique @db.Uuid
+  status             ProcessingStatus @default(PENDING)
+  workflowExecutionId String?         @db.VarChar(120)
+  dispatchedAt       DateTime?
+  completedAt        DateTime?
+  lastError          String?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  attempt            Attempt          @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+}
+
+model FinalReport {
+  id                   String             @id @default(uuid()) @db.Uuid
+  attemptId            String             @unique @db.Uuid
+  recommendedLevelId   String?            @db.Uuid
+  cefrBand             String?            @db.VarChar(4)
+  multipleChoiceResult Json?
+  writingEvaluation    Json?
+  audioEvaluation      Json?
+  narrative            String?
+  reviewStatus         ReportReviewStatus @default(PENDING_REVIEW)
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  attempt              Attempt            @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  recommendedLevel     Level?             @relation("RecommendedReportLevel", fields: [recommendedLevelId], references: [id], onDelete: Restrict)
+}

@@ -1,4 +1,5 @@
 import ExamHeader from "@/components/ExamHeader/ExamHeader";
+import ExamIntegrityGuard from "@/components/ExamIntegrity/ExamIntegrityGuard";
 import { cx } from "@/lib/cx";
 import styles from "./ExamLayout.module.css";
 
@@ -14,6 +15,7 @@ export default function ExamLayout({
   return (
     <main className={cx(styles.page, usesDesktopViewport && styles.desktopViewportPage)}>
       <ExamHeader showTimer={showTimer} />
+      {usesDesktopViewport && <ExamIntegrityGuard />}
       <div
         className={cx(
           styles.grid,

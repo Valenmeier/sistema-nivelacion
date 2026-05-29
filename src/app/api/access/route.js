@@ -1,19 +1,26 @@
 import { NextResponse } from "next/server";
-import { findExamByAccessId } from "@/data/exams";
+import { AccessCodeError, redeemAccessCode } from "@/lib/accessCodes";
 import { COOKIE_NAME, createExamSession, sessionCookieOptions } from "@/lib/session";
 
-export async function POST(request) {
-  const { id } = await request.json();
-  const exam = findExamByAccessId(id);
+export const runtime = "nodejs";
 
-  if (!exam) {
+export async function POST(request) {
+  try {
+    const { id } = await request.json();
+    const attempt = await redeemAccessCode(id);
+
+    const response = NextResponse.json({ ok: true });
+    response.cookies.set(COOKIE_NAME, createExamSession(attempt.id), sessionCookieOptions());
+    return response;
+  } catch (error) {
+    if (error instanceof AccessCodeError) {
+      return NextResponse.json({ error: error.message }, { status: error.status });
+    }
+
+    console.error("No se pudo validar el código de acceso.", error);
     return NextResponse.json(
-      { error: "El ID ingresado no corresponde a un examen disponible." },
-      { status: 401 }
+      { error: "No se pudo ingresar al examen en este momento." },
+      { status: 500 },
     );
   }
-
-  const response = NextResponse.json({ ok: true });
-  response.cookies.set(COOKIE_NAME, createExamSession(exam.id), sessionCookieOptions());
-  return response;
 }

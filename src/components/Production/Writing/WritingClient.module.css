@@ -74,3 +74,9 @@
     margin-top: clamp(10px, 1.5vh, 15px);
   }
 }
+
+.error {
+  color: #b42318;
+  margin: 10px 0 0;
+  font-size: 14px;
+}

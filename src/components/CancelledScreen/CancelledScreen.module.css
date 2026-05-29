@@ -1,0 +1,7 @@
+.page { min-height: 100svh; display: grid; place-items: center; padding: 20px; background: #f8f8fd; }
+.card { width: min(590px, 100%); text-align: center; background: white; border: 1px solid var(--c-line); border-radius: 24px; box-shadow: var(--shadow); padding: clamp(28px, 6vw, 56px); }
+.logo { border-radius: 13px; margin-bottom: 24px; }
+.alert { margin: 0 auto 18px; width: 64px; height: 64px; display: grid; place-items: center; border-radius: 50%; color: white; background: var(--c-danger); font-weight: bold; font-size: 42px; }
+.card h1 { margin: 0 0 13px; font-size: clamp(28px, 4vw, 38px); }
+.card p { color: #47536d; font-size: 17px; line-height: 1.55; margin: 0 0 14px; }
+.note { background: #fff2f3; border-radius: 11px; padding: 13px; font-size: 15px !important; color: #7c1827 !important; }
